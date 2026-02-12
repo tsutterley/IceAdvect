@@ -17,6 +17,10 @@ General Attributes and Methods
 .. autoclass:: xAdvect.io.dataset.DataArray
    :members:
 
+.. autofunction:: xAdvect.io.dataset.register_dataset_subaccessor
+
+.. autofunction:: xAdvect.io.dataset.register_dataarray_subaccessor
+
 .. autofunction:: xAdvect.io.dataset._transform
 
 .. autofunction:: xAdvect.io.dataset._coords

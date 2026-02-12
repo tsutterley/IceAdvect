@@ -17,6 +17,7 @@ PYTHON DEPENDENCIES:
         https://docs.xarray.dev/en/stable/
 
 UPDATE HISTORY:
+    Updated 02/2026: create subaccessor registration functions
     Written 01/2026
 """
 
@@ -30,7 +31,14 @@ import timescale.time
 # suppress warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
-__all__ = ["Dataset", "DataArray", "_transform", "_coords"]
+__all__ = [
+    "Dataset",
+    "DataArray",
+    "register_dataset_subaccessor",
+    "register_dataarray_subaccessor",
+    "_transform",
+    "_coords",
+]
 
 # pint unit registry
 __ureg__ = pint.UnitRegistry()
@@ -379,6 +387,28 @@ class DataArray:
     def quantity(self):
         """``Pint`` Quantity of the ``DataArray``"""
         return 1.0 * self.units
+
+
+def register_dataset_subaccessor(name):
+    """Register a subaccessor on ``Dataset`` objects
+
+    Parameters
+    ----------
+    name: str
+        subaccessor name
+    """
+    return xr.core.extensions._register_accessor(name, Dataset)
+
+
+def register_dataarray_subaccessor(name):
+    """Register a subaccessor on ``DataArray`` objects
+
+    Parameters
+    ----------
+    name: str
+        subaccessor name
+    """
+    return xr.core.extensions._register_accessor(name, DataArray)
 
 
 def _transform(

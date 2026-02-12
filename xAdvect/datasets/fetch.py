@@ -447,6 +447,7 @@ def get_token(
     HOST: str = "https://urs.earthdata.nasa.gov/api/users/token",
     build: bool = True,
     urs: str = "urs.earthdata.nasa.gov",
+    **kwargs,
 ):
     """
     Generate a NASA Earthdata User Token
@@ -554,6 +555,7 @@ def revoke_token(
     HOST: str = f"https://urs.earthdata.nasa.gov/api/users/revoke_token",
     build: bool = True,
     urs: str = "urs.earthdata.nasa.gov",
+    **kwargs,
 ):
     """
     Generate a NASA Earthdata User Token
