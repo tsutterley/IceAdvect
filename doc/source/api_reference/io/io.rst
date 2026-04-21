@@ -11,4 +11,4 @@ Input/output functions for reading and writing velocity data
     geotiff.rst
     netcdf.rst
 
-.. autofunction:: xAdvect.io.open_dataset
+.. autofunction:: IceAdvect.io.open_dataset

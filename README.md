@@ -1,4 +1,4 @@
-# xAdvect
+# IceAdvect
 
 Utilities for advecting point data for use in a Lagrangian reference frame
 
@@ -8,27 +8,27 @@ Utilities for advecting point data for use in a Lagrangian reference frame
   <tr>
     <td><b>Tests:</b></td>
     <td>
-        <a href="https://xadvect.readthedocs.io/en/latest/?badge=latest" alt="Documentation Status"><img src="https://readthedocs.org/projects/xadvect/badge/?version=latest"></a>
-        <a href="https://github.com/tsutterley/xAdvect/actions/workflows/python-request.yml" alt="Build"><img src="https://github.com/tsutterley/xAdvect/actions/workflows/python-request.yml/badge.svg"></a>
-        <a href="https://github.com/tsutterley/xAdvect/actions/workflows/ruff-format.yml" alt="Ruff"><img src="https://github.com/tsutterley/xAdvect/actions/workflows/ruff-format.yml/badge.svg"></a>
+        <a href="https://IceAdvect.readthedocs.io/en/latest/?badge=latest" alt="Documentation Status"><img src="https://readthedocs.org/projects/IceAdvect/badge/?version=latest"></a>
+        <a href="https://github.com/tsutterley/IceAdvect/actions/workflows/python-request.yml" alt="Build"><img src="https://github.com/tsutterley/IceAdvect/actions/workflows/python-request.yml/badge.svg"></a>
+        <a href="https://github.com/tsutterley/IceAdvect/actions/workflows/ruff-format.yml" alt="Ruff"><img src="https://github.com/tsutterley/IceAdvect/actions/workflows/ruff-format.yml/badge.svg"></a>
     </td>
   </tr>
   <tr>
     <td><b>License:</b></td>
     <td>
-        <a href="https://github.com/tsutterley/xAdvect/blob/main/LICENSE" alt="License"><img src="https://img.shields.io/github/license/tsutterley/xAdvect"></a>
+        <a href="https://github.com/tsutterley/IceAdvect/blob/main/LICENSE" alt="License"><img src="https://img.shields.io/github/license/tsutterley/IceAdvect"></a>
     </td>
   </tr>
 </table>
 
-For more information: see the documentation at [xadvect.readthedocs.io](https://xadvect.readthedocs.io/)
+For more information: see the documentation at [IceAdvect.readthedocs.io](https://IceAdvect.readthedocs.io/)
 
 ## Installation
 
 Development version from GitHub:
 
 ```bash
-python3 -m pip install git+https://github.com/tsutterley/xAdvect.git
+python3 -m pip install git+https://github.com/tsutterley/IceAdvect.git
 ```
 
 ### Running with Pixi
@@ -39,13 +39,13 @@ Alternatively, you can use [Pixi](https://pixi.sh/) for a streamlined workspace 
 2. Clone the project repository:
 
 ```bash
-git clone https://github.com/tsutterley/xAdvect.git
+git clone https://github.com/tsutterley/IceAdvect.git
 ```
 
-3. Move into the `xAdvect` directory
+3. Move into the `IceAdvect` directory
 
 ```bash
-cd xAdvect
+cd IceAdvect
 ```
 
 4. Install dependencies and start JupyterLab:
@@ -76,10 +76,10 @@ This will automatically create the environment, install all dependencies, and la
 ## Download
 
 The program homepage is:  
-<https://github.com/tsutterley/xAdvect>
+<https://github.com/tsutterley/IceAdvect>
 
 A zip archive of the latest version is available directly at:  
-<https://github.com/tsutterley/xAdvect/archive/main.zip>
+<https://github.com/tsutterley/IceAdvect/archive/main.zip>
 
 ## Alternative Software
 
@@ -96,7 +96,7 @@ The software is provided here for your convenience but *with no guarantees whats
 ## Contributing
 
 This project contains work and contributions from the [scientific community](./CONTRIBUTORS.md).
-If you would like to contribute to the project, please have a look at the [contribution guidelines](./doc/source/getting_started/Contributing.rst), [open issues](https://github.com/tsutterley/xAdvect/issues) and [discussions board](https://github.com/tsutterley/xAdvect/discussions).
+If you would like to contribute to the project, please have a look at the [contribution guidelines](./doc/source/getting_started/Contributing.rst), [open issues](https://github.com/tsutterley/IceAdvect/issues) and [discussions board](https://github.com/tsutterley/IceAdvect/discussions).
 
 ## License
 

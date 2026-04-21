@@ -1,9 +1,9 @@
 [build-system]
-requires = ["setuptools>=64"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "xAdvect"
+name = "IceAdvect"
 version = "0.0.1"
 description = "Utilities for advecting point data for use in a Lagrangian reference frame"
 keywords = [
@@ -18,9 +18,10 @@ authors = [
     {email = "tsutterl@uw.edu"}
 ]
 maintainers = [
-    {name = "xAdvect contributors"}
+    {name = "IceAdvect contributors"}
 ]
-license = {file = "LICENSE"}
+license = "MIT"
+license-files = ["LICENSE"]
 readme = {file = "README.md", content-type = "text/markdown"}
 
 requires-python = "~=3.9"
@@ -38,7 +39,6 @@ dependencies = [
 classifiers=[
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
@@ -51,8 +51,8 @@ classifiers=[
 ]
 
 [project.urls]
-Repository = "https://github.com/tsutterley/xAdvect"
-Issues = "https://github.com/tsutterley/xAdvect/issues"
+Repository = "https://github.com/tsutterley/IceAdvect"
+Issues = "https://github.com/tsutterley/IceAdvect/issues"
 
 [project.optional-dependencies]
 doc = ["docutils", "graphviz", "ipympl", "myst-nb", "numpydoc", "sphinx", "sphinx-argparse>=0.4", "sphinxcontrib-bibtex", "sphinx-design", "sphinx_rtd_theme"]
@@ -78,11 +78,11 @@ testpaths = [
 [tool.coverage.run]
 branch = true
 source = [
-    "xAdvect",
+    "IceAdvect",
 ]
 omit = [
     "doc/*",
-    "xAdvect/datasets/*",
+    "IceAdvect/datasets/*",
     "test/*",
 ]
 
@@ -127,13 +127,13 @@ line-ending = "auto"
 docstring-code-format = false
 
 [tool.pixi.workspace]
-name = "xAdvect"
-authors = ["xAdvect contributors"]
+name = "IceAdvect"
+authors = ["IceAdvect contributors"]
 channels = ["conda-forge"]
 platforms = ["osx-arm64", "linux-64", "win-64"]
 
 [tool.pixi.pypi-dependencies]
-xAdvect = { path = ".", editable = true }
+IceAdvect = { path = ".", editable = true }
 
 [tool.pixi.environments]
 default = { solve-group = "default" }
@@ -164,7 +164,7 @@ cwd = "test"
 description = "Run the pytest suite"
 
 [tool.pixi.feature.dev.tasks.coverage]
-cmd = "pytest -n=0 --cov=xAdvect --junitxml=pytest.xml --cov-report=xml test"
+cmd = "pytest -n=0 --cov=IceAdvect --junitxml=pytest.xml --cov-report=xml test"
 description = "Run the pytest suite and create coverage reports"
 
 [tool.pixi.feature.dev.tasks.lint]

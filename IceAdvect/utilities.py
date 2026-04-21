@@ -111,7 +111,7 @@ def get_data_path(relpath: list | str | pathlib.Path):
 
 # PURPOSE: get the path to the user cache directory
 def get_cache_path(
-    relpath: list | str | pathlib.Path | None = None, appname="xadvect"
+    relpath: list | str | pathlib.Path | None = None, appname="advect"
 ):
     """
     Get the path to the user cache directory for an application
@@ -120,7 +120,7 @@ def get_cache_path(
     ----------
     relpath: list, str, pathlib.Path or None
         relative path
-    appname: str, default 'xadvect'
+    appname: str, default 'advect'
         application name
     """
     # get platform-specific cache directory
@@ -568,7 +568,7 @@ def check_connection(
     ----------
     HOST: str
         remote http host
-    context: obj, default xAdvect.utilities._default_ssl_context
+    context: obj, default IceAdvect.utilities._default_ssl_context
         SSL context for ``urllib`` opener object
     timeout: int, default 20
         timeout in seconds for blocking operations
@@ -607,7 +607,7 @@ def http_list(
         remote http host path
     timeout: int or NoneType, default None
         timeout in seconds for blocking operations
-    context: obj, default xAdvect.utilities._default_ssl_context
+    context: obj, default IceAdvect.utilities._default_ssl_context
         SSL context for ``urllib`` opener object
     parser: obj, default lxml.etree.HTMLParser()
         HTML parser for ``lxml``
@@ -688,7 +688,7 @@ def from_http(
         remote http host path split as list
     timeout: int or NoneType, default None
         timeout in seconds for blocking operations
-    context: obj, default xAdvect.utilities._default_ssl_context
+    context: obj, default IceAdvect.utilities._default_ssl_context
         SSL context for ``urllib`` opener object
     local: str, pathlib.Path or NoneType, default None
         path to local file
@@ -775,7 +775,7 @@ def from_json(
         remote http host path split as list
     timeout: int or NoneType, default None
         timeout in seconds for blocking operations
-    context: obj, default xAdvect.utilities._default_ssl_context
+    context: obj, default IceAdvect.utilities._default_ssl_context
         SSL context for ``urllib`` opener object
     headers: dict, default {}
         dictionary of headers to append from url request

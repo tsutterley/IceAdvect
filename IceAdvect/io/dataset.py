@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 dataset.py
-Written by Tyler Sutterley (01/2026)
+Written by Tyler Sutterley (04/2026)
 An xarray.Dataset extension for velocity data
 
 PYTHON DEPENDENCIES:
@@ -17,6 +17,8 @@ PYTHON DEPENDENCIES:
         https://docs.xarray.dev/en/stable/
 
 UPDATE HISTORY:
+    Updated 04/2026: add barycentric interpolation for unstructured grids
+        add support for unstructured (e.g. finite element) grids
     Updated 02/2026: create subaccessor registration functions
     Written 01/2026
 """
@@ -67,24 +69,134 @@ class Dataset:
         Parameters
         ----------
         x: np.ndarray
-            New x-coordinates
+            Updated x-coordinates
         y: np.ndarray
-            New y-coordinates
+            Updated y-coordinates
         crs: str, int, or dict, default 4326 (WGS84 Latitude/Longitude)
             Coordinate reference system of coordinates
         kwargs: keyword arguments
-            keyword arguments for ``xarray.Dataset.assign_coords``
+            Keyword arguments for ``xarray.Dataset.assign_coords``
 
         Returns
         -------
         ds: xarray.Dataset
-            dataset with new coordinates
+            ``Dataset`` with updated coordinates
         """
         # assign new coordinates to dataset
         ds = self._ds.assign_coords(dict(x=x, y=y), **kwargs)
         ds.attrs["crs"] = crs
         # return the dataset
         return ds
+
+    def barycentric_interp(
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
+        **kwargs,
+    ):
+        """
+        Interpolate unstructured ``Datasets`` using a barycentric
+        method with first or second order triangular finite elements
+
+        Parameters
+        ----------
+        x: np.ndarray
+            Interpolation x-coordinates
+        y: np.ndarray
+            Interpolation y-coordinates
+        order: int
+            Polynomial order of the triangular elements
+
+            - ``1``: linear
+            - ``2``: quadratic
+        cutoff: int or float, default np.inf
+            Maximum distance to check for elements
+
+        Returns
+        -------
+        other: xarray.Dataset
+            Interpolated ``Dataset``
+        """
+        # import barycentric interpolation functions
+        from IceAdvect.interpolate import (
+            _to_barycentric,
+            _inside_triangle,
+            _shape_functions,
+        )
+
+        # get the polynomial order of the finite elements
+        order = self._ds["element"].attrs.get("order", 1)
+        # default order is same as the tide model
+        kwargs.setdefault("order", order)
+
+        # get cutoff distance to crop elements to bounding box
+        cutoff = kwargs.get("cutoff", np.inf)
+        # crop dataset to bounding box of other dataset plus buffer
+        if np.isfinite(cutoff):
+            # use the cutoff distance as a buffer
+            cutoff_km = cutoff * __ureg__.parse_units("km")
+            buffer = cutoff_km.to(self.axis_units).magnitude
+            # bounds of interpolation coordinates
+            bounds = [np.min(x), np.max(x), np.min(y), np.max(y)]
+            # crop dataset to bounding box of other dataset plus buffer
+            ds = self.crop(bounds=bounds, buffer=buffer)
+        else:
+            # copy dataset without cropping
+            ds = self._ds.copy()
+
+        # allocate for barycentric coordinates
+        xi = xr.full_like(x, np.nan)
+        eta = xr.full_like(x, np.nan)
+        null_points = xi.isnull()
+        # allocate for indices of valid elements
+        element = xr.zeros_like(x, dtype="i")
+        # find the valid elements and barycentric coordinates
+        for i, elem in enumerate(ds.element):
+            # x and y coordinates of element vertices
+            x_elem = ds.x.isel(element=i).drop_vars("element")
+            y_elem = ds.y.isel(element=i).drop_vars("element")
+            # convert model coordinates to barycentric
+            xi_elem, eta_elem = _to_barycentric(x_elem, y_elem, x, y)
+            # drop dimensions
+            xi_elem = xi_elem.drop_vars("vertex", errors="ignore")
+            eta_elem = eta_elem.drop_vars("vertex", errors="ignore")
+            # determine if points are within element and need values
+            inside_element = _inside_triangle(xi_elem, eta_elem)
+            # skip if nothing is inside the element
+            if not np.any(inside_element & null_points):
+                continue
+            # save barycentric coordinates and indices
+            update_element = np.logical_not(inside_element & null_points)
+            xi = xi.where(update_element, xi_elem, drop=False)
+            eta = eta.where(update_element, eta_elem, drop=False)
+            element = element.where(update_element, i, drop=False)
+            # can quit search if all interpolation points have values
+            null_points = xi.isnull()
+            if not null_points.any():
+                break
+        # get shape functions and convert to DataArray
+        N = _shape_functions(xi, eta, kwargs["order"])
+        beta = xr.concat(N, dim="node")
+        # allocate for output dataset
+        other = xr.Dataset()
+        # copy attributes
+        for att_name, att_val in self._ds.attrs.items():
+            other.attrs[att_name] = att_val
+        # iterate over variables in dataset
+        for i, v in enumerate(ds.data_vars.keys()):
+            # tide model variable for valid elements
+            var = ds[v].isel(element=element)
+            # calculate dot product over elements and nodes
+            other[v] = var.dot(beta, dim="node")
+            # copy variable attributes
+            for att_name, att_val in self._ds[v].attrs.items():
+                other[v].attrs[att_name] = att_val
+        # add coordinates to output dataset
+        other.coords["x"] = x
+        other.coords["y"] = y
+        # return the interpolated dataset
+        # drop empty vertex coordinates
+        return other.drop_vars("vertex", errors="ignore").compute()
 
     def coords_as(
         self,
@@ -119,31 +231,82 @@ class Dataset:
         # return the transformed coordinates
         return X, Y
 
-    def crop(self, bounds: list | tuple, buffer: int | float = 0):
+    def crop(
+        self,
+        bounds: list | tuple,
+        buffer: int | float = 0,
+    ):
         """
         Crop ``Dataset`` to input bounding box
 
         Parameters
         ----------
         bounds: list, tuple
-            bounding box [min_x, max_x, min_y, max_y]
+            Bounding box [min_x, max_x, min_y, max_y]
         buffer: int or float, default 0
-            buffer to add to bounds for cropping
+            Buffer to add to bounds for cropping
         """
         # create copy of dataset
         ds = self._ds.copy()
+        # check if chunks are present
+        if hasattr(ds, "chunks") and ds.chunks is not None:
+            ds = ds.chunk(-1).compute()
         # unpack bounds and buffer
         xmin = bounds[0] - buffer
         xmax = bounds[1] + buffer
         ymin = bounds[2] - buffer
         ymax = bounds[3] + buffer
         # crop dataset to bounding box
-        ds = ds.where(
-            (ds.x >= xmin) & (ds.x <= xmax) & (ds.y >= ymin) & (ds.y <= ymax),
-            drop=True,
-        )
+        if self.grid_type == "unstructured":
+            # crop unstructured datasets
+            # include elements that cross the bounding box
+            ds = ds.where(
+                (ds.x.max(dim="vertex") >= xmin)
+                & (ds.x.min(dim="vertex") <= xmax)
+                & (ds.y.max(dim="vertex") >= ymin)
+                & (ds.y.min(dim="vertex") <= ymax),
+                drop=True,
+            )
+        else:
+            # crop gridded datasets
+            ds = ds.where(
+                (ds.x >= xmin)
+                & (ds.x <= xmax)
+                & (ds.y >= ymin)
+                & (ds.y <= ymax),
+                drop=True,
+            )
         # return the cropped dataset
         return ds
+
+    def grid_interp(
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
+        method="linear",
+        **kwargs,
+    ):
+        """
+        Interpolate a regular or rectilinear ``Dataset`` to new coordinates
+
+        Parameters
+        ----------
+        x: np.ndarray
+            Interpolation x-coordinates
+        y: np.ndarray
+            Interpolation y-coordinates
+        method: str, default 'linear'
+            Interpolation method
+
+        Returns
+        -------
+        other: xarray.Dataset
+            Interpolated ``Dataset``
+        """
+        # interpolate dataset using built-in xarray methods
+        other = self._ds.interp(x=x, y=y, method=method)
+        # return xarray dataset
+        return other
 
     def inpaint(self, **kwargs):
         """
@@ -152,15 +315,15 @@ class Dataset:
         Parameters
         ----------
         kwargs: keyword arguments
-            keyword arguments for ``xAdvect.interpolate.inpaint``
+            Keyword arguments for ``IceAdvect.interpolate.inpaint``
 
         Returns
         -------
         ds: xarray.Dataset
-            interpolated xarray Dataset
+            Interpolated ``Dataset``
         """
         # import inpaint function
-        from xAdvect.interpolate import inpaint
+        from IceAdvect.interpolate import inpaint
 
         # create copy of dataset
         ds = self._ds.copy()
@@ -172,6 +335,43 @@ class Dataset:
         # return the dataset
         return ds
 
+    def interp(
+        self,
+        x: np.ndarray,
+        y: np.ndarray,
+        **kwargs,
+    ):
+        """
+        Interpolate ``Dataset`` to new coordinates
+
+        Parameters
+        ----------
+        x: np.ndarray
+            Interpolation x-coordinates
+        y: np.ndarray
+            Interpolation y-coordinates
+        **kwargs: dict
+            Additional keyword arguments for interpolation functions
+
+        Returns
+        -------
+        other: xarray.Dataset
+            Interpolated ``Dataset``
+        """
+        # set default keyword arguments
+        kwargs.setdefault("method", "linear")
+        kwargs.setdefault("extrapolate", False)
+        kwargs.setdefault("cutoff", np.inf)
+        # check if interpolating from a grid or mesh
+        if self.grid_type == "unstructured":
+            # use barycentric interpolation if data is unstructured
+            other = self.barycentric_interp(x, y, **kwargs)
+        else:
+            # use built-in xarray interpolation methods
+            other = self.grid_interp(x, y, **kwargs)
+        # return xarray dataset
+        return other
+
     def run(self, **kwargs):
         """
         Advect coordinates using the velocity field in the ``Dataset``
@@ -179,7 +379,7 @@ class Dataset:
         Parameters
         ----------
         kwargs: keyword arguments
-            keyword arguments for ``xAdvect.advect()``
+            keyword arguments for ``IceAdvect.advect()``
 
         Returns
         -------
@@ -188,7 +388,7 @@ class Dataset:
         y0: np.ndarray
             Advected y-coordinates
         """
-        from xAdvect.advect import Advect
+        from IceAdvect.advect import Advect
 
         # convert dataset to base units
         ds = self.to_base_units()
@@ -236,15 +436,19 @@ class Dataset:
         # return the transformed coordinates
         return (X, Y)
 
-    def to_units(self, units: str, value: float = 1.0):
+    def to_units(
+        self,
+        units: str,
+        value: float = 1.0,
+    ):
         """Convert ``Dataset`` to specified velocity units
 
         Parameters
         ----------
         units: str
-            output units
+            Output units
         value: float, default 1.0
-            scaling factor to apply
+            Scaling factor to apply
         """
         # create copy of dataset
         ds = self._ds.copy()
@@ -273,9 +477,14 @@ class Dataset:
 
     @property
     def area_of_use(self) -> str | None:
-        """Area of use from the dataset CRS"""
+        """Area of use from the ``Dataset`` CRS"""
         if self.crs.area_of_use is not None:
             return self.crs.area_of_use.name.replace(".", "").lower()
+
+    @property
+    def axis_units(self) -> str:
+        """Units of the coordinate axes from the ``Dataset`` CRS"""
+        return self.crs.axis_info[0].unit_name
 
     @property
     def crs(self):
@@ -294,6 +503,11 @@ class Dataset:
         dU = self._ds.U.differentiate("x")
         dV = self._ds.V.differentiate("y")
         return dU + dV
+
+    @property
+    def grid_type(self) -> str:
+        """Spatial structure of the ``Dataset``"""
+        return self._ds.attrs.get("grid_type", "grid")
 
     @property
     def speed(self):
@@ -348,15 +562,19 @@ class DataArray:
         # return the cropped dataarray
         return da
 
-    def to_units(self, units: str, value: float = 1.0):
+    def to_units(
+        self,
+        units: str,
+        value: float = 1.0,
+    ):
         """Convert ``DataArray`` to specified units
 
         Parameters
         ----------
         units: str
-            output units
+            Output units
         value: float, default 1.0
-            scaling factor to apply
+            Scaling factor to apply
         """
         # convert to specified units
         conversion = value * self.quantity.to(units)
@@ -370,7 +588,7 @@ class DataArray:
         Parameters
         ----------
         value: float, default 1.0
-            scaling factor to apply
+            Scaling factor to apply
         """
         # convert to base units
         conversion = value * self.quantity.to_base_units()
@@ -381,32 +599,42 @@ class DataArray:
     @property
     def units(self):
         """Units of the ``DataArray``"""
-        return __ureg__.parse_units(self._da.attrs.get("units", ""))
+        try:
+            return __ureg__.parse_units(self._units)
+        except TypeError as exc:
+            raise ValueError(f"Unknown units: {self._units}") from exc
+        except AttributeError as exc:
+            raise AttributeError("DataArray has no attribute 'units'") from exc
 
     @property
     def quantity(self):
         """``Pint`` Quantity of the ``DataArray``"""
         return 1.0 * self.units
 
+    @property
+    def _units(self):
+        """Units attribute of the ``DataArray`` as a string"""
+        return self._da.attrs.get("units")
+
 
 def register_dataset_subaccessor(name):
-    """Register a subaccessor on ``Dataset`` objects
+    """Register a custom subaccessor on ``Dataset`` objects
 
     Parameters
     ----------
     name: str
-        subaccessor name
+        Name of the subaccessor
     """
     return xr.core.extensions._register_accessor(name, Dataset)
 
 
 def register_dataarray_subaccessor(name):
-    """Register a subaccessor on ``DataArray`` objects
+    """Register a custom subaccessor on ``DataArray`` objects
 
     Parameters
     ----------
     name: str
-        subaccessor name
+        Name of the subaccessor
     """
     return xr.core.extensions._register_accessor(name, DataArray)
 
@@ -498,7 +726,7 @@ def _coords(
     Y: xarray.DataArray
         Transformed y-coordinates
     """
-    from xAdvect.spatial import data_type
+    from IceAdvect.spatial import data_type
 
     # set default keyword arguments
     kwargs.setdefault("type", None)

@@ -28,12 +28,12 @@ import logging
 import warnings
 import numpy as np
 import xarray as xr
-import xAdvect.utilities
+import IceAdvect.utilities
 import timescale.time
 
 # attempt imports
-dask = xAdvect.utilities.import_dependency("dask")
-dask_available = xAdvect.utilities.dependency_available("dask")
+dask = IceAdvect.utilities.import_dependency("dask")
+dask_available = IceAdvect.utilities.dependency_available("dask")
 
 # set environmental variable for anonymous s3 access
 os.environ["AWS_NO_SIGN_REQUEST"] = "YES"

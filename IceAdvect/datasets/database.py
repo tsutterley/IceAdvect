@@ -11,7 +11,7 @@ UPDATE HISTORY:
 import copy
 import json
 import pathlib
-from xAdvect.utilities import get_data_path
+from IceAdvect.utilities import get_data_path
 
 
 # PURPOSE: load the JSON database of velocity datasets

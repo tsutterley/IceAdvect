@@ -6,11 +6,11 @@ Plotting tools for visualization
 
 `Source code`__
 
-.. __: https://github.com/tsutterley/xAdvect/blob/main/xAdvect/tools.py
+.. __: https://github.com/tsutterley/IceAdvect/blob/main/IceAdvect/tools.py
 
 General Attributes and Methods
 ==============================
 
-.. autofunction:: xAdvect.tools.from_cpt
+.. autofunction:: IceAdvect.tools.from_cpt
 
-.. autofunction:: xAdvect.tools.custom_colormap
+.. autofunction:: IceAdvect.tools.custom_colormap

@@ -6,11 +6,11 @@ Reads netcdf files into an ``xarray.Dataset``
 
 `Source code`__
 
-.. __: https://github.com/tsutterley/xAdvect/blob/main/xAdvect/io/netcdf.py
+.. __: https://github.com/tsutterley/IceAdvect/blob/main/IceAdvect/io/netcdf.py
 
 General Attributes and Methods
 ==============================
 
-.. autofunction:: xAdvect.io.netcdf.open_mfdataset
+.. autofunction:: IceAdvect.io.netcdf.open_mfdataset
 
-.. autofunction:: xAdvect.io.netcdf.open_dataset
+.. autofunction:: IceAdvect.io.netcdf.open_dataset

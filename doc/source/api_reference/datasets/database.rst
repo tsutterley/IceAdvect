@@ -6,6 +6,6 @@ database
 
 `Source code`__
 
-.. __: https://github.com/tsutterley/xAdvect/blob/main/xAdvect/datasets/database.py
+.. __: https://github.com/tsutterley/IceAdvect/blob/main/IceAdvect/datasets/database.py
 
-.. autofunction:: xAdvect.datasets.load_database
+.. autofunction:: IceAdvect.datasets.load_database

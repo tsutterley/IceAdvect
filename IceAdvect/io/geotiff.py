@@ -27,14 +27,14 @@ import pathlib
 import warnings
 import numpy as np
 import xarray as xr
-import xAdvect.utilities
+import IceAdvect.utilities
 import timescale.time
 
 # attempt imports
-dask = xAdvect.utilities.import_dependency("dask")
-dask_available = xAdvect.utilities.dependency_available("dask")
-rioxarray = xAdvect.utilities.import_dependency("rioxarray")
-rioxarray.merge = xAdvect.utilities.import_dependency("rioxarray.merge")
+dask = IceAdvect.utilities.import_dependency("dask")
+dask_available = IceAdvect.utilities.dependency_available("dask")
+rioxarray = IceAdvect.utilities.import_dependency("rioxarray")
+rioxarray.merge = IceAdvect.utilities.import_dependency("rioxarray.merge")
 
 # set environmental variable for anonymous s3 access
 os.environ["AWS_NO_SIGN_REQUEST"] = "YES"
@@ -203,7 +203,7 @@ def open_dataarray(
         filename, masked=True, chunks=chunks, **kwargs
     )
     # name of the input file
-    name = xAdvect.utilities.Path(filename).name
+    name = IceAdvect.utilities.Path(filename).name
     # assign time dimension for long-term averages or from filename pattern
     if longterm:
         pass

@@ -6891,6 +6891,45 @@ packages:
   - pkg:pypi/hyperframe?source=hash-mapping
   size: 17397
   timestamp: 1737618427549
+- pypi: ./
+  name: iceadvect
+  version: 0.0.1
+  sha256: e9557ad32c30854d4d56058de25d8973fa441645e3501d3a6aed36a7ffd55d82
+  requires_dist:
+  - h5netcdf
+  - lxml
+  - numpy
+  - platformdirs
+  - pyproj
+  - scipy>=1.10.1
+  - timescale>=0.0.8
+  - xarray
+  - docutils ; extra == 'doc'
+  - graphviz ; extra == 'doc'
+  - ipympl ; extra == 'doc'
+  - myst-nb ; extra == 'doc'
+  - numpydoc ; extra == 'doc'
+  - sphinx ; extra == 'doc'
+  - sphinx-argparse>=0.4 ; extra == 'doc'
+  - sphinxcontrib-bibtex ; extra == 'doc'
+  - sphinx-design ; extra == 'doc'
+  - sphinx-rtd-theme ; extra == 'doc'
+  - boto3 ; extra == 'all'
+  - cartopy ; extra == 'all'
+  - dask ; extra == 'all'
+  - geopandas ; extra == 'all'
+  - ipywidgets ; extra == 'all'
+  - jupyterlab ; extra == 'all'
+  - matplotlib ; extra == 'all'
+  - notebook ; extra == 'all'
+  - rioxarray ; extra == 'all'
+  - s3fs ; extra == 'all'
+  - flake8 ; extra == 'dev'
+  - pytest>=4.6 ; extra == 'dev'
+  - pytest-cov ; extra == 'dev'
+  - pytest-xdist ; extra == 'dev'
+  requires_python: ~=3.9
+  editable: true
 - conda: https://conda.anaconda.org/conda-forge/linux-64/icu-78.2-h33c6efd_0.conda
   sha256: 142a722072fa96cf16ff98eaaf641f54ab84744af81754c292cb81e0881c0329
   md5: 186a18e3ba246eccfc7cff00cd19a870
@@ -14661,45 +14700,6 @@ packages:
   - pkg:pypi/wrapt?source=hash-mapping
   size: 63873
   timestamp: 1756852097390
-- pypi: ./
-  name: xadvect
-  version: 0.0.1
-  sha256: dd888e8c2adcd1ec879f6f86d11daeaf91c6608be22a586fb1fa3572351fc2c6
-  requires_dist:
-  - h5netcdf
-  - lxml
-  - numpy
-  - platformdirs
-  - pyproj
-  - scipy>=1.10.1
-  - timescale>=0.0.8
-  - xarray
-  - docutils ; extra == 'doc'
-  - graphviz ; extra == 'doc'
-  - ipympl ; extra == 'doc'
-  - myst-nb ; extra == 'doc'
-  - numpydoc ; extra == 'doc'
-  - sphinx ; extra == 'doc'
-  - sphinx-argparse>=0.4 ; extra == 'doc'
-  - sphinxcontrib-bibtex ; extra == 'doc'
-  - sphinx-design ; extra == 'doc'
-  - sphinx-rtd-theme ; extra == 'doc'
-  - boto3 ; extra == 'all'
-  - cartopy ; extra == 'all'
-  - dask ; extra == 'all'
-  - geopandas ; extra == 'all'
-  - ipywidgets ; extra == 'all'
-  - jupyterlab ; extra == 'all'
-  - matplotlib ; extra == 'all'
-  - notebook ; extra == 'all'
-  - rioxarray ; extra == 'all'
-  - s3fs ; extra == 'all'
-  - flake8 ; extra == 'dev'
-  - pytest>=4.6 ; extra == 'dev'
-  - pytest-cov ; extra == 'dev'
-  - pytest-xdist ; extra == 'dev'
-  requires_python: ~=3.9
-  editable: true
 - conda: https://conda.anaconda.org/conda-forge/noarch/xarray-2025.12.0-pyhcf101f3_0.conda
   sha256: b35f6848f229d65dc6e6d58a232099a5e293405a5e3e369b15110ed255cf9872
   md5: efdb3ef0ff549959650ef070ba2c52d2

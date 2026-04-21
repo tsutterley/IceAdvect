@@ -7,7 +7,7 @@ Verify advection operations
 import pytest
 import numpy as np
 import xarray as xr
-import xAdvect
+import IceAdvect
 
 
 # parametrize over advection method

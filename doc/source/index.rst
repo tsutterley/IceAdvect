@@ -1,8 +1,8 @@
 =====================
-xAdvect Documentation
+IceAdvect Documentation
 =====================
 
-Welcome to the documentation for ``xAdvect``, a Python-based software for advecting ice parcels.
+Welcome to the documentation for ``IceAdvect``, a Python-based software for advecting ice parcels.
 This documentation is intended to explain how to advect point data for use in a Lagrangian reference frame.
 
 Introduction
@@ -44,13 +44,13 @@ Contribute
 
     .. grid-item-card::  Discussions
       :text-align: center
-      :link: https://github.com/tsutterley/xAdvect/discussions
+      :link: https://github.com/tsutterley/IceAdvect/discussions
 
       :material-outlined:`forum;5em`
 
     .. grid-item-card::  Issues
       :text-align: center
-      :link: https://github.com/tsutterley/xAdvect/issues
+      :link: https://github.com/tsutterley/IceAdvect/issues
 
       :material-outlined:`bug_report;5em`
 

@@ -5,18 +5,18 @@ Setup and Installation
 Installation
 ############
 
-``xAdvect`` is currently only available for download from the `GitHub repository <https://github.com/tsutterley/xAdvect>`_.
+``IceAdvect`` is currently only available for download from the `GitHub repository <https://github.com/tsutterley/IceAdvect>`_.
 
 Development Install
 ###################
 
-To use the development repository, please fork ``xAdvect`` into your own account and then clone onto your system:
+To use the development repository, please fork ``IceAdvect`` into your own account and then clone onto your system:
 
 .. code-block:: bash
 
-    git clone https://github.com/tsutterley/xAdvect.git
+    git clone https://github.com/tsutterley/IceAdvect.git
 
-``xAdvect`` can then be installed within the package directory using ``pip``:
+``IceAdvect`` can then be installed within the package directory using ``pip``:
 
 .. code-block:: bash
 
@@ -28,11 +28,11 @@ To include all optional dependencies:
 
    python3 -m pip install --user .[all]
 
-The development version of ``xAdvect`` can also be installed directly from GitHub using ``pip``:
+The development version of ``IceAdvect`` can also be installed directly from GitHub using ``pip``:
 
 .. code-block:: bash
 
-    python3 -m pip install --user git+https://github.com/tsutterley/xAdvect.git
+    python3 -m pip install --user git+https://github.com/tsutterley/IceAdvect.git
 
 Package Management with ``pixi``
 ################################
@@ -44,7 +44,7 @@ Alternatively ``pixi`` can be used to create a `streamlined environment <https:/
     pixi install
 
 ``pixi`` maintains isolated environments for each project, allowing for different versions of
-``xAdvect`` and its dependencies to be used without conflict. The ``pixi.lock`` file within the
+``IceAdvect`` and its dependencies to be used without conflict. The ``pixi.lock`` file within the
 repository defines the required packages and versions for the environment.
 
 ``pixi`` can also create shells for running programs within the environment:
@@ -53,7 +53,7 @@ repository defines the required packages and versions for the environment.
 
     pixi shell
 
-To see the available tasks within the ``xAdvect`` workspace:
+To see the available tasks within the ``IceAdvect`` workspace:
 
 .. code-block:: bash
 

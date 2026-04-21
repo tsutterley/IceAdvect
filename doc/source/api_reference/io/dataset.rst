@@ -6,21 +6,21 @@ dataset
 
 `Source code`__
 
-.. __: https://github.com/tsutterley/xAdvect/blob/main/xAdvect/io/dataset.py
+.. __: https://github.com/tsutterley/IceAdvect/blob/main/IceAdvect/io/dataset.py
 
 General Attributes and Methods
 ==============================
 
-.. autoclass:: xAdvect.io.dataset.Dataset
+.. autoclass:: IceAdvect.io.dataset.Dataset
    :members:
 
-.. autoclass:: xAdvect.io.dataset.DataArray
+.. autoclass:: IceAdvect.io.dataset.DataArray
    :members:
 
-.. autofunction:: xAdvect.io.dataset.register_dataset_subaccessor
+.. autofunction:: IceAdvect.io.dataset.register_dataset_subaccessor
 
-.. autofunction:: xAdvect.io.dataset.register_dataarray_subaccessor
+.. autofunction:: IceAdvect.io.dataset.register_dataarray_subaccessor
 
-.. autofunction:: xAdvect.io.dataset._transform
+.. autofunction:: IceAdvect.io.dataset._transform
 
-.. autofunction:: xAdvect.io.dataset._coords
+.. autofunction:: IceAdvect.io.dataset._coords
