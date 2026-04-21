@@ -58,7 +58,7 @@ class Advect:
             - ``'RKF45'``
     method: str, default 'linear'
         Interpolation method for velocities
-            - ``'linear'``, ``'nearest'``: scipy regular grid interpolations
+            - ``'linear'``, ``'nearest'``: xarray interpolation method
     time_units: str, default 'seconds'
         Units for input time coordinates
     fill_value: float or NoneType, default np.nan

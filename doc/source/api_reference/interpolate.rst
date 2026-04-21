@@ -6,6 +6,6 @@ interpolate
 
 `Source code`__
 
-.. __: https://github.com/tsutterley/xAdvect/blob/main/xAdvect/interpolate.py
+.. __: https://github.com/tsutterley/IceAdvect/blob/main/IceAdvect/interpolate.py
 
-.. autofunction:: xAdvect.interpolate.inpaint
+.. autofunction:: IceAdvect.interpolate.inpaint

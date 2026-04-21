@@ -20,7 +20,7 @@ import re
 import pathlib
 import colorsys
 import numpy as np
-from xAdvect.utilities import import_dependency
+from IceAdvect.utilities import import_dependency
 
 # attempt imports
 mpl = import_dependency("matplotlib")

@@ -7,7 +7,7 @@ Gets version number of a package
 import importlib.metadata
 
 # package metadata
-metadata = importlib.metadata.metadata("xAdvect")
+metadata = importlib.metadata.metadata("IceAdvect")
 # get version
 version = metadata["version"]
 # append "v" before the version

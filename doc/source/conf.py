@@ -24,7 +24,7 @@ import importlib.util
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
 
 # package metadata
-metadata = importlib.metadata.metadata("xAdvect")
+metadata = importlib.metadata.metadata("IceAdvect")
 project = metadata["Name"]
 year = datetime.date.today().year
 copyright = f"2026\u2013{year}, Tyler C. Sutterley"
@@ -85,7 +85,7 @@ autosummary_generate = True
 autodoc_member_order = 'bysource'
 numpydoc_show_class_members = False
 pygments_style = 'native'
-bibtex_bibfiles = ['_assets/xadvect-refs.bib']
+bibtex_bibfiles = ['_assets/advect-refs.bib']
 bibtex_default_style = 'plain'
 plot_html_show_formats = False
 numfig = True
@@ -116,7 +116,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_logo = "_assets/xAdvect_logo.png"
+html_logo = "_assets/IceAdvect_logo.png"
 html_static_path = ['_static']
 # fetch the project urls
 project_urls = {}

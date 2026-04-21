@@ -6,7 +6,7 @@ name: pytest Build
 on:
   pull_request:
     paths:
-      - xAdvect/**
+      - IceAdvect/**
       - test/**
       - .github/workflows/python-request.yml
     types: [opened, synchronize, reopened, ready_for_review]

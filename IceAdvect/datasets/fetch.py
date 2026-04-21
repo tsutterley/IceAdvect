@@ -26,7 +26,7 @@ import logging
 import pathlib
 import builtins
 import posixpath
-from xAdvect.utilities import (
+from IceAdvect.utilities import (
     CookieJar,
     urllib2,
     _default_ssl_context,
@@ -299,7 +299,7 @@ def attempt_login(
     ----------
     urs: str, default urs.earthdata.nasa.gov
         Earthdata login URS 3 host
-    context: obj, default xAdvect.utilities._default_ssl_context
+    context: obj, default IceAdvect.utilities._default_ssl_context
         SSL context for ``urllib`` opener object
     password_manager: bool, default True
         Create password manager context using default realm
@@ -389,7 +389,7 @@ def build_opener(
         NASA Earthdata username
     password: str or NoneType, default None
         NASA Earthdata password
-    context: obj, default xAdvect.utilities._default_ssl_context
+    context: obj, default IceAdvect.utilities._default_ssl_context
         SSL context for ``urllib`` opener object
     password_manager: bool, default True
         Create password manager context using default realm
@@ -803,7 +803,7 @@ def cmr(
             - ``'s3'``: NASA Earthdata Cumulus AWS S3 bucket
     opener: obj or NoneType, default None
         ``OpenerDirector`` instance
-    context: obj, default xAdvect.utilities._default_ssl_context
+    context: obj, default IceAdvect.utilities._default_ssl_context
         SSL context for ``urllib`` opener object
     verbose: bool, default False
         print file transfer information
@@ -886,7 +886,7 @@ def fetch(path: pathlib.Path = get_cache_path(), **kwargs):
 
     Parameters
     ----------
-    path: str or pathlib.Path, default xAdvect.utilities.get_cache_path()
+    path: str or pathlib.Path, default IceAdvect.utilities.get_cache_path()
         local path to download resources
     kwargs: dict
         keyword arguments for ``cmr``

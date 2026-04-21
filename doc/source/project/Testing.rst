@@ -2,8 +2,8 @@
 Testing
 =======
 
-``xAdvect`` uses the ``pytest`` framework to run tests and verify outputs.
-Running the test suite requires a `dev installation <../getting_started/Install.html>`_ of the ``xAdvect`` package to include all of the optional dependencies.
+``IceAdvect`` uses the ``pytest`` framework to run tests and verify outputs.
+Running the test suite requires a `dev installation <../getting_started/Install.html>`_ of the ``IceAdvect`` package to include all of the optional dependencies.
 
 .. code-block:: bash
 
@@ -33,7 +33,7 @@ Coverage reports can be generated using the ``pytest-cov`` plugin (which is inst
 
 .. code-block:: bash
 
-    pytest --cov xAdvect --cov-report=term 
+    pytest --cov IceAdvect --cov-report=term 
 
 .. code-block:: bash
 
@@ -55,8 +55,8 @@ To run in series and disable parallelization, set the number of processes to 0:
 
 Continuous Integration
 ^^^^^^^^^^^^^^^^^^^^^^
-We use `GitHub Actions <https://github.com/tsutterley/xAdvect/actions>`_ continuous integration (CI) services to build and test the project on Linux (``ubuntu-latest``), Mac (``macos-latest``), and Windows (``windows-latest``) Operating Systems.
-The configuration files for this service are in the `GitHub workflows <https://github.com/tsutterley/xAdvect/tree/main/.github/workflows>`_ directory.
+We use `GitHub Actions <https://github.com/tsutterley/IceAdvect/actions>`_ continuous integration (CI) services to build and test the project on Linux (``ubuntu-latest``), Mac (``macos-latest``), and Windows (``windows-latest``) Operating Systems.
+The configuration files for this service are in the `GitHub workflows <https://github.com/tsutterley/IceAdvect/tree/main/.github/workflows>`_ directory.
 Most of the workflows use ``pixi`` to install the required dependencies and build the custom environment.
 
 The GitHub Actions jobs include:
@@ -65,4 +65,4 @@ The GitHub Actions jobs include:
 * Running `flake8 <https://flake8.pycqa.org/en/latest/>`_ to check the code for compilation errors
 * Running the test suite on different operating systems
 * Creating a comment with test coverage statistics
-* Uploading source and wheel distributions to `PyPI <https://pypi.org/project/xAdvect/>`_ (on releases)
+* Uploading source and wheel distributions to `PyPI <https://pypi.org/project/IceAdvect/>`_ (on releases)
