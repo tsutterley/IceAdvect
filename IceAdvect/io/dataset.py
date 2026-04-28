@@ -379,7 +379,7 @@ class Dataset:
         Parameters
         ----------
         kwargs: dict
-            keyword arguments for :py:class:`IceAdvect.advect`
+            keyword arguments for :py:class:`IceAdvect.advect.Advect`
 
         Returns
         -------
