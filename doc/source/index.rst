@@ -1,6 +1,6 @@
-=====================
+=======================
 IceAdvect Documentation
-=====================
+=======================
 
 Welcome to the documentation for ``IceAdvect``, a Python-based software for advecting ice parcels.
 This documentation is intended to explain how to advect point data for use in a Lagrangian reference frame.
