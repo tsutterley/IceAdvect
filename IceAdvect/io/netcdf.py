@@ -52,7 +52,7 @@ def open_mfdataset(filename: list[str] | list[pathlib.Path], **kwargs):
         list of files
     parallel: bool, default False
         Open files in parallel using ``dask.delayed``
-    **kwargs: dict
+    kwargs: dict
         additional keyword arguments for opening files
     Returns
     -------

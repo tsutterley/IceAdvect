@@ -36,7 +36,7 @@ def open_dataset(
         - ``'netCDF4'``: netCDF4 file
         - ``'geotiff'``: geoTIFF file
         - ``None``: infer from file extension
-    **kwargs: dict
+    kwargs: dict
         additional keyword arguments for opening files
 
     Returns

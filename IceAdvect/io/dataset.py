@@ -74,7 +74,7 @@ class Dataset:
             Updated y-coordinates
         crs: str, int, or dict, default 4326 (WGS84 Latitude/Longitude)
             Coordinate reference system of coordinates
-        kwargs: keyword arguments
+        kwargs: dict
             Keyword arguments for ``xarray.Dataset.assign_coords``
 
         Returns
@@ -314,8 +314,8 @@ class Dataset:
 
         Parameters
         ----------
-        kwargs: keyword arguments
-            Keyword arguments for ``IceAdvect.interpolate.inpaint``
+        kwargs: dict
+            Keyword arguments for :py:func:`IceAdvect.interpolate.inpaint`
 
         Returns
         -------
@@ -350,7 +350,7 @@ class Dataset:
             Interpolation x-coordinates
         y: np.ndarray
             Interpolation y-coordinates
-        **kwargs: dict
+        kwargs: dict
             Additional keyword arguments for interpolation functions
 
         Returns
@@ -378,8 +378,8 @@ class Dataset:
 
         Parameters
         ----------
-        kwargs: keyword arguments
-            keyword arguments for ``IceAdvect.advect()``
+        kwargs: dict
+            keyword arguments for :py:class:`IceAdvect.advect.Advect`
 
         Returns
         -------

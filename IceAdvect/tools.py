@@ -40,7 +40,7 @@ def from_cpt(filename, use_extremes=True, **kwargs):
         color palette table file
     use_extremes: bool, default True
         use the under, over and bad values from the cpt file
-    **kwargs: dict
+    kwargs: dict
         optional arguments for LinearSegmentedColormap
     """
 
@@ -160,7 +160,7 @@ def custom_colormap(N, map_name, **kwargs):
             - ``'Joughin'``: velocity colormap from :cite:t:`Joughin:2018ei`
             - ``'Rignot'``: velocity colormap from :cite:t:`Rignot:2011ko`
             - ``'Seroussi'``: divergence colormap from :cite:t:`Seroussi:2011hi`
-    **kwargs: dict
+    kwargs: dict
         optional arguments for ``LinearSegmentedColormap``
     """
 

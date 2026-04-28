@@ -6894,7 +6894,7 @@ packages:
 - pypi: ./
   name: iceadvect
   version: 0.0.1
-  sha256: e9557ad32c30854d4d56058de25d8973fa441645e3501d3a6aed36a7ffd55d82
+  sha256: 79ce83b1473f2244d0a1b3d03d99c6645edc9a21d38498c0d5dc2a3fb58bb033
   requires_dist:
   - h5netcdf
   - lxml
