@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 geotiff.py
-Written by Tyler Sutterley (02/2026)
+Written by Tyler Sutterley (04/2026)
 
 Reads geotiff files as xarray Datasets
 
@@ -13,6 +13,7 @@ PYTHON DEPENDENCIES:
         https://docs.xarray.dev/en/stable/
 
 UPDATE HISTORY:
+    Updated 04/2026: added lineage attribute to save filename(s)
     Updated 02/2026: added logging information when opening files
     Written 01/2026
 """
@@ -27,8 +28,9 @@ import pathlib
 import warnings
 import numpy as np
 import xarray as xr
-import IceAdvect.utilities
 import timescale.time
+import IceAdvect.utilities
+from IceAdvect.io.dataset import combine_attrs
 
 # attempt imports
 dask = IceAdvect.utilities.import_dependency("dask")
@@ -43,7 +45,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 def open_mfdataset(
-    filename: list,
+    filenames: list,
     mapping: dict,
     **kwargs,
 ) -> xr.Dataset:
@@ -51,7 +53,7 @@ def open_mfdataset(
 
     Parameters
     ----------
-    filename: str
+    filenames: str
         Path to geotiff file
     mapping: dict
         Dictionary mapping standard variable names to patterns for the file
@@ -65,29 +67,20 @@ def open_mfdataset(
     """
     # read the geotiff files as an xarray Datasets
     datasets = []
-    for f in filename:
+    for f in filenames:
         # determine variable name from mapping
-        try:
-            (variable,) = [
-                k for k, v in mapping.items() if re.search(v, str(f), re.I)
-            ]
-        except ValueError:
-            pattern = None
-            variable = "variable"
-        else:
-            # determine pattern for extracting time information
-            pattern = mapping[variable]
-        # append Dataset to list
+        variable, pattern = parse_file(f, mapping)
+        # append dataset to list
         datasets.append(
-            open_dataset(
-                f,
-                variable=variable,
-                pattern=pattern,
-                **kwargs,
-            )
+            open_dataset(f, variable=variable, pattern=pattern, **kwargs)
         )
     # merge Datasets
-    darr = xr.merge(datasets, compat="override")
+    darr = xr.merge(
+        datasets,
+        combine_attrs=combine_attrs,
+        compat="override",
+        join="override",
+    )
     # return xarray Dataset
     return darr
 
@@ -115,34 +108,32 @@ def open_dataset(
     ds: xr.Dataset
         xarray Dataset
     """
-    kwargs.setdefault("mapping", None)
-    if kwargs["mapping"] is not None:
-        (variable,) = [
-            k
-            for k, v in kwargs["mapping"].items()
-            if re.search(v, str(filename), re.I)
-        ]
-        # determine pattern for extracting time information
-        kwargs["pattern"] = kwargs["mapping"][variable]
+    mapping = kwargs.get("mapping", None)
+    if mapping is not None:
+        variable, pattern = parse_file(filename, mapping)
+        kwargs["pattern"] = pattern
     # read the geotiff file as an xarray DataArray
-    darr = open_dataarray(
-        filename,
-        **kwargs,
-    )
+    darr = open_dataarray(filename, **kwargs)
     # convert DataArray to Dataset
     ds = darr.to_dataset(name=variable)
+    # add lineage attribute
+    ds.attrs["lineage"] = pathlib.Path(filename).name
     # return the xarray Dataset
     return ds
 
 
 # PURPOSE: read a list of model files
-def open_mfdataarray(filename: list[str] | list[pathlib.Path], **kwargs):
+def open_mfdataarray(
+    filenames: list[str] | list[pathlib.Path],
+    parallel: bool = False,
+    **kwargs,
+):
     """
     Open multiple geotiff files
 
     Parameters
     ----------
-    filename: list of str or pathlib.Path
+    filenames: list of str or pathlib.Path
         list of files
     parallel: bool, default False
         Open files in parallel using ``dask.delayed``
@@ -154,17 +145,18 @@ def open_mfdataarray(filename: list[str] | list[pathlib.Path], **kwargs):
     darr: xarray.DataArray
         xarray DataArray
     """
-    # set default keyword arguments
-    kwargs.setdefault("parallel", False)
-    parallel = kwargs.get("parallel") and dask_available
     # read each file as xarray DataArray and append to list
-    if parallel:
+    if parallel and dask_available:
         opener = dask.delayed(open_dataarray)
-        (d,) = dask.compute([opener(f, **kwargs) for f in filename])
     else:
-        d = [open_dataarray(f, **kwargs) for f in filename]
+        opener = open_dataarray
+    # read each file as xarray dataset and append to list
+    dataarrays = [opener(f, **kwargs) for f in filenames]
+    # read datasets as dask arrays
+    if parallel and dask_available:
+        (dataarrays,) = dask.compute(dataarrays)
     # merge DataArray
-    darr = xr.merge(d, compat="override")
+    darr = xr.merge(dataarrays, compat="override", join="override")
     # return xarray DataArray
     return darr
 
@@ -226,3 +218,33 @@ def open_dataarray(
         darr.attrs["crs"] = pyproj.CRS.from_user_input(crs_wkt).to_dict()
     # return xarray DataArray
     return darr
+
+
+def parse_file(filename: str | pathlib.Path, mapping: dict):
+    """
+    Determine variable name from filename using mapping
+
+    Parameters
+    ----------
+    filename: str or pathlib.Path
+        Path to file
+    mapping: dict
+        Dictionary mapping standard variable names to patterns for the file
+
+    Returns
+    -------
+    variable: str
+        Variable name for the file
+    pattern: str or None
+        Regular expression pattern for extracting time information
+    """
+    # default variable name and pattern
+    variable = "variable"
+    pattern = None
+    # determine pattern for extracting time information
+    for k, v in mapping.items():
+        if re.search(v, str(filename), re.IGNORECASE):
+            variable, pattern = k, v
+            break
+    # return variable name and pattern
+    return variable, pattern

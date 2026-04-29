@@ -12,5 +12,5 @@ Software
 
  - `pointAdvection <https://github.com/SmithB/pointAdvection>`_: UW-APL utilities for advecting point data using ``pointCollection``
  - `pointCollection <https://github.com/SmithB/pointCollection>`_: UW-APL utilities for organizing and manipulating point data
- - `pyTMD <https://github.com/tsutterley/pyTMD>`_: Python-based tidal prediction software
+ - `pyTMD <https://github.com/pyTMD/pyTMD>`_: Python-based tidal prediction software
  - `surfaceChange <https://github.com/SmithB/surfaceChange>`_: UW-APL scripts for creating tiled dh/dt products from altimetry data
