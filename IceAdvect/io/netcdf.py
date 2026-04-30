@@ -69,7 +69,7 @@ def open_mfdataset(
     else:
         opener = open_dataset
     # verify that filename is iterable
-    if isinstance(filenames, str):
+    if isinstance(filenames, (str, pathlib.Path)):
         filenames = [filenames]
     # read each file as xarray dataset and append to list
     datasets = [opener(f, **kwargs) for f in filenames]
