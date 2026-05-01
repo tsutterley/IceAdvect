@@ -45,7 +45,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 def open_mfdataset(
-    filenames: list,
+    filenames: list[str] | list[pathlib.Path],
     mapping: dict,
     **kwargs,
 ) -> xr.Dataset:
@@ -53,7 +53,7 @@ def open_mfdataset(
 
     Parameters
     ----------
-    filenames: str
+    filenames: list of str or pathlib.Path
         Path to geotiff file
     mapping: dict
         Dictionary mapping standard variable names to patterns for the file
@@ -65,6 +65,9 @@ def open_mfdataset(
     ds: xr.Dataset
         xarray Dataset
     """
+    # verify that filename is iterable
+    if isinstance(filenames, (str, pathlib.Path)):
+        filenames = [filenames]
     # read the geotiff files as an xarray Datasets
     datasets = []
     for f in filenames:
@@ -145,6 +148,9 @@ def open_mfdataarray(
     darr: xarray.DataArray
         xarray DataArray
     """
+    # verify that filename is iterable
+    if isinstance(filenames, (str, pathlib.Path)):
+        filenames = [filenames]
     # read each file as xarray DataArray and append to list
     if parallel and dask_available:
         opener = dask.delayed(open_dataarray)
