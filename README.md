@@ -73,6 +73,12 @@ This will automatically create the environment, install all dependencies, and la
 > "Antarctic ice shelf thickness change from multimission lidar mapping", *The Cryosphere*,
 > 13, 1801-1817, (2019). [doi: 10.5194/tc-13-1801-2019](https://doi.org/10.5194/tc-13-1801-2019)
 
+
+## Alternative Software
+
+Advection tools built upon [`pointCollection`](https://github.com/SmithB/pointCollection):  
+<https://github.com/tsutterley/pointAdvection>
+
 ## Download
 
 The program homepage is:  
@@ -80,12 +86,6 @@ The program homepage is:
 
 A zip archive of the latest version is available directly at:  
 <https://github.com/tsutterley/IceAdvect/archive/main.zip>
-
-## Alternative Software
-
-Advection tools built upon [`pointCollection`](https://github.com/SmithB/pointCollection):  
-<https://github.com/tsutterley/pointAdvection>
-
 
 ## Disclaimer
 
