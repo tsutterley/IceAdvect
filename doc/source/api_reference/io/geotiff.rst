@@ -18,3 +18,5 @@ General Attributes and Methods
 .. autofunction:: IceAdvect.io.geotiff.open_mfdataarray
 
 .. autofunction:: IceAdvect.io.geotiff.open_dataarray
+
+.. autofunction:: IceAdvect.io.geotiff.parse_file

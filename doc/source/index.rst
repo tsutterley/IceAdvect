@@ -60,9 +60,9 @@ Project Details
 .. grid:: 2 2 4 4
     :padding: 0
 
-    .. grid-item-card::  Examples
+    .. grid-item-card::  Release Notes
       :text-align: center
-      :link: ./user_guide/Examples.html
+      :link: ./release_notes/Release-Notes.html
 
       :material-outlined:`apps;5em`
 
@@ -124,6 +124,13 @@ Project Details
     project/Licenses.rst
     project/Testing.rst
     project/Citations.rst
+
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+    :caption: Release Notes
+
+    release_notes/Release-Notes.rst
 
 .. toctree::
     :maxdepth: 1
