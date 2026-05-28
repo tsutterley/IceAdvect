@@ -22,6 +22,7 @@ import importlib.util
 
 # -- Project information -----------------------------------------------------
 on_rtd = os.environ.get('READTHEDOCS') == 'True'
+on_github = os.environ.get("GITHUB_ACTIONS") == "true"
 
 # package metadata
 metadata = importlib.metadata.metadata("IceAdvect")
@@ -63,6 +64,8 @@ source_suffix = {
 }
 # execute notebooks on build
 if on_rtd:
+    nb_execution_mode = "off"
+elif on_github:
     nb_execution_mode = "off"
 else:
     nb_execution_mode = "auto"

@@ -58,28 +58,28 @@ def open_dataset(
     )
     if format == "netCDF4" and isinstance(filename, list):
         return netcdf.open_mfdataset(
-            filename=filename,
+            filename,
             mapping=mapping,
             chunks=chunks,
             **kwargs,
         )
     elif format == "netCDF4" or pathlib.Path(filename).suffix in nc:
         return netcdf.open_dataset(
-            filename=filename,
+            filename,
             mapping=mapping,
             chunks=chunks,
             **kwargs,
         )
     elif format == "geotiff" and isinstance(filename, list):
         return geotiff.open_mfdataset(
-            filename=filename,
+            filename,
             mapping=mapping,
             chunks=chunks,
             **kwargs,
         )
     elif format == "geotiff" or pathlib.Path(filename).suffix in tiff:
         return geotiff.open_dataset(
-            filename=filename,
+            filename,
             chunks=chunks,
             **kwargs,
         )

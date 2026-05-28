@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 netcdf.py
-Written by Tyler Sutterley (02/2026)
+Written by Tyler Sutterley (04/2026)
 
 Reads netCDF4 files as xarray Datasets with variable mapping
 
@@ -15,6 +15,7 @@ PYTHON DEPENDENCIES:
         https://docs.xarray.dev/en/stable/
 
 UPDATE HISTORY:
+    Updated 04/2026: added lineage attribute to save filename(s)
     Updated 02/2026: added logging information when opening files
     Written 01/2026
 """
@@ -28,8 +29,9 @@ import logging
 import warnings
 import numpy as np
 import xarray as xr
-import IceAdvect.utilities
 import timescale.time
+import IceAdvect.utilities
+from IceAdvect.io.dataset import combine_attrs
 
 # attempt imports
 dask = IceAdvect.utilities.import_dependency("dask")
@@ -42,13 +44,15 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 
 # PURPOSE: read a list of files
-def open_mfdataset(filename: list[str] | list[pathlib.Path], **kwargs):
+def open_mfdataset(
+    filenames: list[str] | list[pathlib.Path], parallel: bool = False, **kwargs
+):
     """
     Open multiple netCDF4 files
 
     Parameters
     ----------
-    filename: list of str or pathlib.Path
+    filenames: list of str or pathlib.Path
         list of files
     parallel: bool, default False
         Open files in parallel using ``dask.delayed``
@@ -59,17 +63,26 @@ def open_mfdataset(filename: list[str] | list[pathlib.Path], **kwargs):
     ds: xarray.Dataset
         xarray Dataset
     """
-    # set default keyword arguments
-    kwargs.setdefault("parallel", False)
-    parallel = kwargs.get("parallel") and dask_available
-    # read each file as xarray dataset and append to list
-    if parallel:
+    # merge multiple granules
+    if parallel and dask_available:
         opener = dask.delayed(open_dataset)
-        (d,) = dask.compute([opener(f, **kwargs) for f in filename])
     else:
-        d = [open_dataset(f, **kwargs) for f in filename]
+        opener = open_dataset
+    # verify that filename is iterable
+    if isinstance(filenames, (str, pathlib.Path)):
+        filenames = [filenames]
+    # read each file as xarray dataset and append to list
+    datasets = [opener(f, **kwargs) for f in filenames]
+    # read datasets as dask arrays
+    if parallel and dask_available:
+        (datasets,) = dask.compute(datasets)
     # merge datasets
-    ds = xr.merge(d, compat="override")
+    ds = xr.merge(
+        datasets,
+        combine_attrs=combine_attrs,
+        compat="override",
+        join="override",
+    )
     # return xarray dataset
     return ds
 
@@ -130,5 +143,7 @@ def open_dataset(
     # attach coordinate reference system (CRS) information
     if crs is not None:
         ds.attrs["crs"] = pyproj.CRS.from_user_input(crs).to_dict()
+    # add lineage attribute
+    ds.attrs["lineage"] = pathlib.Path(filename).name
     # return the xarray dataset
     return ds

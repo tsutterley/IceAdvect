@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 interpolate.py
-Written by Tyler Sutterley (04/2026)
+Written by Tyler Sutterley (05/2026)
 Interpolators for spatial data
 
 PYTHON DEPENDENCIES:
@@ -14,6 +14,7 @@ PYTHON DEPENDENCIES:
         https://docs.xarray.dev/en/stable/
 
 UPDATE HISTORY:
+    Updated 05/2026: add winding number to verify order of triangle vertices
     Updated 04/2026: add 1st and 2nd order barycentric interpolation function
     Written 01/2026
 """
@@ -24,6 +25,7 @@ import numpy as np
 import xarray as xr
 import scipy.fftpack
 import scipy.spatial
+import IceAdvect.spatial
 
 __all__ = [
     "inpaint",
@@ -31,6 +33,7 @@ __all__ = [
     "_to_barycentric",
     "_inside_triangle",
     "_shape_functions",
+    "_winding_number",
 ]
 
 
@@ -87,7 +90,7 @@ def inpaint(
     # computation of distance Matrix
     # use scipy spatial KDTree routines
     xgrid, ygrid = np.meshgrid(xs, ys)
-    tree = scipy.spatial.cKDTree(np.c_[xgrid[W], ygrid[W]])
+    tree = scipy.spatial.KDTree(np.c_[xgrid[W], ygrid[W]])
     # find nearest neighbors
     masked = np.logical_not(W)
     _, ii = tree.query(np.c_[xgrid[masked], ygrid[masked]], k=1)
@@ -313,3 +316,25 @@ def _shape_functions(xi: np.ndarray, eta: np.ndarray, order: int):
         raise ValueError(f"Unsupported polynomial order {order}")
     # return the shape functions
     return N
+
+
+# PURPOSE: determine if triangle winding is counter-clockwise
+def _winding_number(xv: np.ndarray, yv: np.ndarray):
+    """
+    Calculate the winding number of a triangle by taking the
+    cross-product of the vertex vectors
+
+    Parameters
+    ----------
+    xv: np.ndarray
+        x-coordinates of triangle vertices
+    yv: np.ndarray
+        y-coordinates of triangle vertices
+
+    Returns
+    -------
+    wind: np.ndarray
+        Winding number of the triangle
+    """
+    wind = (xv[1] - xv[0]) * (yv[2] - yv[0]) - (yv[1] - yv[0]) * (xv[2] - xv[0])
+    return wind
