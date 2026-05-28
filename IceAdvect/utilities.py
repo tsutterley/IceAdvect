@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
 utilities.py
-Written by Tyler Sutterley (01/2026)
+Written by Tyler Sutterley (05/2026)
 Download and management utilities for syncing files
 
 PYTHON DEPENDENCIES:
@@ -11,6 +11,10 @@ PYTHON DEPENDENCIES:
         https://pypi.org/project/platformdirs/
 
 UPDATE HISTORY:
+    Updated 05/2026: add exists to URL class to check if URL is valid
+        added function to get the github url of an item in the project repo
+    Updated 04/2026: add query and path functions to URL class
+        added include_algorithm option to get_hash function
     Updated 01/2026: raise original exceptions in cases of HTTPError/URLError
     Written 01/2026
 """
@@ -23,18 +27,19 @@ import re
 import io
 import ssl
 import json
+import time
 import shutil
 import hashlib
 import inspect
 import logging
 import pathlib
+import calendar
 import warnings
 import importlib
 import posixpath
 import subprocess
 import lxml.etree
 import platformdirs
-import calendar, time
 
 if sys.version_info[0] == 2:
     from urllib import quote_plus
@@ -50,6 +55,7 @@ __all__ = [
     "reify",
     "get_data_path",
     "get_cache_path",
+    "get_github_url",
     "import_dependency",
     "dependency_available",
     "is_valid_url",
@@ -62,6 +68,8 @@ __all__ = [
     "url_split",
     "convert_arg_line_to_args",
     "get_unix_time",
+    "copy",
+    "symlink",
     "_create_default_ssl_context",
     "_create_ssl_context_no_verify",
     "_set_ssl_context_options",
@@ -72,7 +80,7 @@ __all__ = [
 ]
 
 
-class reify(object):
+class reify:
     """Class decorator that puts the result of the method it
     decorates into the instance"""
 
@@ -97,7 +105,7 @@ def get_data_path(relpath: list | str | pathlib.Path):
     Parameters
     ----------
     relpath: list, str or pathlib.Path
-        relative path
+        Relative path
     """
     # current file path
     filename = inspect.getframeinfo(inspect.currentframe()).filename
@@ -119,9 +127,9 @@ def get_cache_path(
     Parameters
     ----------
     relpath: list, str, pathlib.Path or None
-        relative path
+        Relative path
     appname: str, default 'advect'
-        application name
+        Application name
     """
     # get platform-specific cache directory
     filepath = platformdirs.user_cache_path(appname=appname, ensure_exists=True)
@@ -133,8 +141,47 @@ def get_cache_path(
     return pathlib.Path(filepath)
 
 
+def get_github_url(
+    relpath: list | str,
+    username: str = "tsutterley",
+    repository: str = "IceAdvect",
+    branch: str = "main",
+):
+    """
+    Get a ``URL`` for the raw content of an item a GitHub repository
+
+    Parameters
+    ----------
+    relpath: list or str
+        Relative path
+    username: str, default 'tsutterley'
+        GitHub username for project repository
+    repository: str, default 'IceAdvect'
+        GitHub project name
+    branch: str, default 'main'
+        GitHub branch name
+
+    Returns
+    -------
+    raw_url: str
+        item ``URL``
+    """
+    # components of the URL for raw content from the project repository
+    HOST = URL("https://raw.githubusercontent.com")
+    HOST = HOST.joinpath(username, repository, "refs", "heads", branch)
+    # check if relative path is a string and convert to list
+    if isinstance(relpath, str):
+        relpath = [relpath]
+    # append the relative path components to the URL
+    raw_url = HOST.joinpath(*relpath).urlname
+    # return the URL for the raw content
+    return raw_url
+
+
 def import_dependency(
-    name: str, extra: str = "", raise_exception: bool = False
+    name: str,
+    extra: str = "",
+    raise_exception: bool = False,
 ):
     """
     Import an optional dependency
@@ -173,7 +220,10 @@ def import_dependency(
     return module
 
 
-def dependency_available(name: str, minversion: str | None = None):
+def dependency_available(
+    name: str,
+    minversion: str | None = None,
+):
     """
     Checks whether a module is installed without importing it
 
@@ -225,7 +275,7 @@ def Path(filename: str | pathlib.Path, *args, **kwargs):
     Parameters
     ----------
     filename: str or pathlib.Path
-        file path or URL
+        File path or URL
     """
     if is_valid_url(filename):
         return URL(filename, *args, **kwargs)
@@ -280,13 +330,17 @@ class URL:
         """Boolean flag if path is a local directory"""
         return False
 
+    def exists(self):
+        """Boolean flag if ``URL`` is valid"""
+        return is_valid_url(self.urlname)
+
     def geturl(self):
         """String representation of the ``URL`` object"""
         return self._components.geturl()
 
     def get(self, *args, **kwargs):
         """Get contents from URL"""
-        return from_http(self.urlname, headers=self._headers, *args, **kwargs)
+        return from_http(self.urlname, *args, headers=self._headers, **kwargs)
 
     def headers(self, *args, **kwargs):
         """Get headers from URL"""
@@ -294,16 +348,24 @@ class URL:
         return self._headers
 
     def load(self, *args, **kwargs):
-        """Load JSON response from URL"""
-        return from_json(self.urlname, headers=self._headers, *args, **kwargs)
+        """Load ``JSON`` response from URL"""
+        return from_json(self.urlname, *args, headers=self._headers, **kwargs)
 
     def ping(self, *args, **kwargs) -> bool:
         """Ping URL to check connection"""
         return check_connection(self.urlname, *args, **kwargs)
 
+    def query(self, *args, **kwargs):
+        """List contents from URL"""
+        return http_list(self.urlname, *args, headers=self._headers, **kwargs)
+
     def read(self, *args, **kwargs):
         """Open URL and read response"""
         return self.urlopen(*args, **kwargs).read()
+
+    def request(self, *args, **kwargs):
+        """Make URL request"""
+        return urllib2.Request(self.urlname)
 
     def urlopen(self, *args, **kwargs):
         """Open URL and return response"""
@@ -343,6 +405,11 @@ class URL:
         return (self.scheme, self.netloc, *paths)
 
     @property
+    def path(self):
+        """URL path"""
+        return self._components.path
+
+    @property
     def scheme(self):
         """URL scheme"""
         return self._components.scheme + "://"
@@ -367,6 +434,10 @@ class URL:
         """String representation of the ``URL`` object"""
         return str(self.urlname)
 
+    def __add__(self, other):
+        """Concatenate URL components using the addition operator"""
+        return URL(self.urlname + str(other))
+
     def __div__(self, other):
         """Join URL components using the division operator"""
         return self.joinpath(other)
@@ -383,7 +454,7 @@ def compressuser(filename: str | pathlib.Path):
     Parameters
     ----------
     filename: str or pathlib.Path
-        input filename to compress
+        Input filename to tilde-compress
     """
     # attempt to compress filename relative to home directory
     filename = pathlib.Path(filename).expanduser().absolute()
@@ -396,22 +467,29 @@ def compressuser(filename: str | pathlib.Path):
 
 
 # PURPOSE: get the hash value of a file
-def get_hash(local: str | io.IOBase | pathlib.Path, algorithm: str = "md5"):
+def get_hash(
+    local: str | io.IOBase | pathlib.Path,
+    algorithm: str = "md5",
+    include_algorithm: bool = False,
+):
     """
     Get the hash value from a local file or ``BytesIO`` object
 
     Parameters
     ----------
     local: obj, str or pathlib.Path
-        BytesIO object or path to file
+        ``BytesIO`` object or path to file
     algorithm: str, default 'md5'
-        hashing algorithm for checksum validation
+        Hashing algorithm for checksum validation
+    include_algorithm: bool, default False
+        Include the algorithm name in the returned hash
     """
     # check if open file object or if local file exists
     if isinstance(local, io.IOBase):
         # generate checksum hash for a given type
         if algorithm in hashlib.algorithms_available:
-            return hashlib.new(algorithm, local.getvalue()).hexdigest()
+            value = hashlib.new(algorithm, local.getvalue()).hexdigest()
+            return f"{algorithm}:{value}" if include_algorithm else value
         else:
             raise ValueError(f"Invalid hashing algorithm: {algorithm}")
     elif isinstance(local, (str, pathlib.Path)):
@@ -424,7 +502,8 @@ def get_hash(local: str | io.IOBase | pathlib.Path, algorithm: str = "md5"):
         with local.open(mode="rb") as local_buffer:
             # generate checksum hash for a given type
             if algorithm in hashlib.algorithms_available:
-                return hashlib.new(algorithm, local_buffer.read()).hexdigest()
+                value = hashlib.new(algorithm, local_buffer.read()).hexdigest()
+                return f"{algorithm}:{value}" if include_algorithm else value
             else:
                 raise ValueError(f"Invalid hashing algorithm: {algorithm}")
     else:
@@ -432,7 +511,10 @@ def get_hash(local: str | io.IOBase | pathlib.Path, algorithm: str = "md5"):
 
 
 # PURPOSE: get the git hash value
-def get_git_revision_hash(refname: str = "HEAD", short: bool = False):
+def get_git_revision_hash(
+    refname: str = "HEAD",
+    short: bool = False,
+):
     """
     Get the ``git`` hash value for a particular reference
 
@@ -472,12 +554,12 @@ def get_git_status():
 # PURPOSE: recursively split a url path
 def url_split(s: str):
     """
-    Recursively split a url path into a list
+    Recursively split a URL path into a list
 
     Parameters
     ----------
     s: str
-        url string
+        URL string
     """
     head, tail = posixpath.split(str(s))
     if head in ("http:", "https:", "ftp:", "s3:"):
@@ -495,7 +577,7 @@ def convert_arg_line_to_args(arg_line):
     Parameters
     ----------
     arg_line: str
-        line string containing a single argument and/or comments
+        Line string containing a single argument and/or comments
     """
     # remove commented lines and after argument comments
     for arg in re.sub(r"\#(.*?)$", r"", arg_line).split():
@@ -505,16 +587,19 @@ def convert_arg_line_to_args(arg_line):
 
 
 # PURPOSE: returns the Unix timestamp value for a formatted date string
-def get_unix_time(time_string: str, format: str = "%Y-%m-%d %H:%M:%S"):
+def get_unix_time(
+    time_string: str,
+    format: str = "%Y-%m-%d %H:%M:%S",
+):
     """
     Get the Unix timestamp value for a formatted date string
 
     Parameters
     ----------
     time_string: str
-        formatted time string to parse
+        Formatted time string to parse
     format: str, default '%Y-%m-%d %H:%M:%S'
-        format for input time string
+        Format for input time string
     """
     try:
         parsed_time = time.strptime(time_string.rstrip(), format)
@@ -524,8 +609,80 @@ def get_unix_time(time_string: str, format: str = "%Y-%m-%d %H:%M:%S"):
         return calendar.timegm(parsed_time)
 
 
+# PURPOSE: make a copy of a file with all system information
+def copy(
+    source: str | pathlib.Path,
+    destination: str | pathlib.Path,
+    move: bool = False,
+    **kwargs,
+):
+    """
+    Copy or move a file with all system information
+
+    Parameters
+    ----------
+    source: str
+        Source file
+    destination: str
+        Copied destination file
+    move: bool, default False
+        Remove the source file
+    """
+    source = pathlib.Path(source).expanduser().absolute()
+    destination = pathlib.Path(destination).expanduser().absolute()
+    # log source and destination
+    logging.info(f"{str(source)} -->\n\t{str(destination)}")
+    shutil.copyfile(source, destination)
+    shutil.copystat(source, destination)
+    # remove the original file if moving
+    if move:
+        source.unlink()
+
+
+# PURPOSE: make a symbolic link to a file
+def symlink(
+    source: str | pathlib.Path,
+    destination: str | pathlib.Path,
+):
+    """
+    Create a symbolic link to a file
+
+    Parameters
+    ----------
+    source: str or pathlib.Path
+        Source file
+    destination: str or pathlib.Path
+        Symbolic link file
+    """
+    # verify that source and destination are pathlib.Path objects
+    source = pathlib.Path(source).expanduser().absolute()
+    destination = pathlib.Path(destination).expanduser().absolute()
+    # verify conditions for creating symbolic link
+    if source == destination:
+        # skip if symlink has the same path as source file
+        logging.debug(f"Symbolic link {destination} matches source {source}")
+        return
+    elif destination.exists() and not destination.is_symlink():
+        # file exists and is not a symbolic link
+        raise FileExistsError(f"Existing file: {destination}")
+    elif destination.is_symlink() and destination.resolve() == source.resolve():
+        # skip if symlink already points to the source file
+        logging.debug(f"Symbolic link already exists: {destination}")
+        return
+    elif destination.is_symlink() and destination.resolve() != source.resolve():
+        # remove existing symbolic link if it points to a different file
+        logging.debug(f"Removing existing symbolic link: {destination}")
+        destination.unlink()
+    # make source relative to destination parent if possible
+    if source.is_relative_to(destination.parent):
+        source = source.relative_to(destination.parent)
+    # create new symbolic link
+    logging.info(f"\t--> {destination} (symlink)")
+    destination.symlink_to(source)
+
+
 def _create_default_ssl_context() -> ssl.SSLContext:
-    """Creates the default SSL context"""
+    """Creates the default ``SSL`` context"""
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
     _set_ssl_context_options(context)
     context.options |= ssl.OP_NO_COMPRESSION
@@ -533,7 +690,7 @@ def _create_default_ssl_context() -> ssl.SSLContext:
 
 
 def _create_ssl_context_no_verify() -> ssl.SSLContext:
-    """Creates an SSL context for unverified connections"""
+    """Creates an ``SSL`` context for unverified connections"""
     context = _create_default_ssl_context()
     context.check_hostname = False
     context.verify_mode = ssl.CERT_NONE
@@ -541,7 +698,7 @@ def _create_ssl_context_no_verify() -> ssl.SSLContext:
 
 
 def _set_ssl_context_options(context: ssl.SSLContext) -> None:
-    """Sets the default options for the SSL context"""
+    """Sets the default options for the ``SSL`` context"""
     if sys.version_info >= (3, 10) or ssl.OPENSSL_VERSION_INFO >= (1, 1, 0, 7):
         context.minimum_version = ssl.TLSVersion.TLSv1_2
     else:
@@ -562,16 +719,16 @@ def check_connection(
     timeout: int = 20,
 ):
     """
-    Check internet connection with http host
+    Check internet connection with ``http`` host
 
     Parameters
     ----------
     HOST: str
-        remote http host
+        Remote ``http`` host
     context: obj, default IceAdvect.utilities._default_ssl_context
-        SSL context for ``urllib`` opener object
+        ``SSL`` context for ``urllib`` opener object
     timeout: int, default 20
-        timeout in seconds for blocking operations
+        Timeout in seconds for blocking operations
     """
     # attempt to connect to http host
     try:
@@ -599,31 +756,31 @@ def http_list(
     **kwargs,
 ):
     """
-    List a directory on an Apache http Server
+    List a directory on an Apache ``http`` Server
 
     Parameters
     ----------
     HOST: str or list
-        remote http host path
+        Remote ``http`` host path
     timeout: int or NoneType, default None
-        timeout in seconds for blocking operations
+        Timeout in seconds for blocking operations
     context: obj, default IceAdvect.utilities._default_ssl_context
-        SSL context for ``urllib`` opener object
+        ``SSL`` context for ``urllib`` opener object
     parser: obj, default lxml.etree.HTMLParser()
-        HTML parser for ``lxml``
+        ``HTML`` parser for ``lxml``
     format: str, default '%Y-%m-%d %H:%M'
-        format for input time string
+        Format for input time string
     pattern: str, default ''
-        regular expression pattern for reducing list
+        Regular expression pattern for reducing list
     sort: bool, default False
-        sort output list
+        Sort output list
 
     Returns
     -------
     colnames: list
-        column names in a directory
+        Column names in a directory
     collastmod: list
-        last modification times for items in the directory
+        Last modification times for items in the directory
     """
     # verify inputs for remote http host
     if isinstance(HOST, str):
@@ -675,40 +832,43 @@ def from_http(
     chunk: int = 16384,
     headers: dict = {},
     verbose: bool = False,
-    fid=sys.stdout,
+    fid: object = sys.stdout,
+    label: str | None = None,
     mode: oct = 0o775,
     **kwargs,
 ):
     """
-    Download a file from a http host
+    Download a file from a ``http`` host
 
     Parameters
     ----------
     HOST: str or list
-        remote http host path split as list
+        Remote ``http`` host path split as list
     timeout: int or NoneType, default None
-        timeout in seconds for blocking operations
+        Timeout in seconds for blocking operations
     context: obj, default IceAdvect.utilities._default_ssl_context
-        SSL context for ``urllib`` opener object
+        ``SSL`` context for ``urllib`` opener object
     local: str, pathlib.Path or NoneType, default None
-        path to local file
+        Path to local file
     hash: str, default ''
-        MD5 hash of local file
+        ``MD5`` hash of local file
     chunk: int, default 16384
-        chunk size for transfer encoding
+        Chunk size for transfer encoding
     headers: dict, default {}
-        dictionary of headers to append from url request
+        Dictionary of headers to append from URL request
     verbose: bool, default False
-        print file transfer information
-    fid: obj, default sys.stdout
-        open file object to print if verbose
+        Print file transfer information
+    fid: object, default sys.stdout
+        Open file object for logging file transfers if verbose
+    label: str or None, default None
+        Label for logging file transfer information if verbose
     mode: oct, default 0o775
-        permissions mode of output local file
+        Permissions mode of output local file
 
     Returns
     -------
     remote_buffer: obj
-        BytesIO representation of file
+        ``BytesIO`` representation of file
     """
     # create logger
     loglevel = logging.INFO if verbose else logging.CRITICAL
@@ -716,6 +876,9 @@ def from_http(
     # verify inputs for remote http host
     if isinstance(HOST, str):
         HOST = url_split(HOST)
+    # set default label for logging
+    if label is None:
+        label = f"{posixpath.join(*HOST)} -->\n\t{local}"
     # try downloading from http
     try:
         # Create and submit request.
@@ -746,8 +909,7 @@ def from_http(
             # create directory if non-existent
             local.parent.mkdir(mode=mode, parents=True, exist_ok=True)
             # print file information
-            args = (posixpath.join(*HOST), str(local))
-            logging.info("{0} -->\n\t{1}".format(*args))
+            logging.info(label)
             # store bytes to file using chunked transfer encoding
             remote_buffer.seek(0)
             with local.open(mode="wb") as f:
@@ -767,18 +929,23 @@ def from_json(
     headers: dict = {},
 ) -> dict:
     """
-    Load a JSON response from a http host
+    Load a ``JSON`` response from a ``http`` host
 
     Parameters
     ----------
     HOST: str or list
-        remote http host path split as list
+        Remote ``http`` host path split as list
     timeout: int or NoneType, default None
-        timeout in seconds for blocking operations
+        Timeout in seconds for blocking operations
     context: obj, default IceAdvect.utilities._default_ssl_context
-        SSL context for ``urllib`` opener object
+        ``SSL`` context for ``urllib`` opener object
     headers: dict, default {}
-        dictionary of headers to append from url request
+        Dictionary of headers to append from URL request
+
+    Returns
+    -------
+    json_response: dict
+        ``JSON`` response
     """
     # verify inputs for remote http host
     if isinstance(HOST, str):
@@ -800,4 +967,5 @@ def from_json(
         # copy headers from response
         headers.update({k.lower(): v for k, v in response.getheaders()})
         # load JSON response
-        return json.loads(response.read())
+        json_response = json.loads(response.read())
+        return json_response
