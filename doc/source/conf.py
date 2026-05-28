@@ -65,6 +65,8 @@ source_suffix = {
 # execute notebooks on build
 if on_rtd:
     nb_execution_mode = "off"
+elif on_github:
+    nb_execution_mode = "off"
 else:
     nb_execution_mode = "auto"
     nb_execution_excludepatterns = []
