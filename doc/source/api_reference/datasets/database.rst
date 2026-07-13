@@ -1,6 +1,6 @@
-========
-database
-========
+============
+``database``
+============
 
 - Load and maintain the JSON database of velocity datasets
 

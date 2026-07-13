@@ -1,6 +1,6 @@
-=======
-dataset
-=======
+===========
+``dataset``
+===========
 
 ``xarray`` extensions for velocity data
 

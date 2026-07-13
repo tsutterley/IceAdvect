@@ -100,20 +100,8 @@ Project Details
     :hidden:
     :caption: User Guide
 
+    api_reference/API-Reference.rst
     user_guide/Examples.rst
-
-.. toctree::
-    :maxdepth: 1
-    :hidden:
-    :caption: API Reference
-
-    api_reference/advect.rst
-    api_reference/datasets/datasets.rst
-    api_reference/interpolate.rst
-    api_reference/io/io.rst
-    api_reference/spatial.rst
-    api_reference/tools.rst
-    api_reference/utilities.rst
 
 .. toctree::
     :maxdepth: 1
