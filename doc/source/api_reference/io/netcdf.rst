@@ -1,6 +1,6 @@
-======
-netcdf
-======
+==========
+``netcdf``
+==========
 
 Reads netcdf files into an ``xarray.Dataset``
 

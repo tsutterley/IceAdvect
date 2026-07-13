@@ -1,6 +1,6 @@
-=====
-fetch
-=====
+=========
+``fetch``
+=========
 
 Download routines for NASA Earthdata files
 

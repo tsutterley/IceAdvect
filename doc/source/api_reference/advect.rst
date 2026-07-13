@@ -1,6 +1,6 @@
-======
-advect
-======
+==========
+``advect``
+==========
 
 Routines for advecting ice parcels using velocity grids
 

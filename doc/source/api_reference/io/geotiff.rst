@@ -1,6 +1,6 @@
-=======
-geotiff
-=======
+===========
+``geotiff``
+===========
 
 Reads geotiff files into an ``xarray.Dataset``
 
