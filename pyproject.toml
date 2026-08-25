@@ -29,6 +29,7 @@ dependencies = [
     "h5netcdf",
     "lxml",
     "numpy",
+    "pint",
     "platformdirs",
     "pyproj",
     "scipy>=1.10.1",
