@@ -1,0 +1,48 @@
+name: all
+channels:
+- conda-forge
+- nodefaults
+dependencies:
+- boto3 *
+- cartopy *
+- dask *
+- geopandas *
+- ipywidgets *
+- jupyterlab *
+- matplotlib-base *
+- notebook *
+- rioxarray *
+- s3fs *
+- h5netcdf *
+- lxml *
+- numpy *
+- pint *
+- platformdirs *
+- pyproj >=2.5.0
+- scipy >=1.10.1
+- timescale >=0.0.8
+- xarray *
+- python ~=3.9
+- pip
+- pip:
+  - boto3
+  - cartopy
+  - dask
+  - geopandas
+  - ipywidgets
+  - jupyterlab
+  - matplotlib
+  - notebook
+  - rioxarray
+  - s3fs
+  - -e .
+  - h5netcdf
+  - lxml
+  - numpy
+  - pint
+  - platformdirs
+  - pyproj
+  - scipy>=1.10.1
+  - timescale>=0.0.8
+  - xarray
+
